@@ -56,10 +56,16 @@
 #include <stdint.h>
 
 // Necessary for some systems to expose functions
-#if !defined(_WIN32) && !defined(ENDIANNESS_CONFIG_FORCE_NON_SYSTEM_IMPLEMENTATION)
-#	define _BSD_SOURCE
-#	define _SVID_SOURCE
-#	define _DEFAULT_SOURCE
+#if !(defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(ENDIANNESS_CONFIG_FORCE_NON_SYSTEM_IMPLEMENTATION)
+#	ifndef _BSD_SOURCE
+#		define _BSD_SOURCE
+#	endif
+#	ifndef _SVID_SOURCE
+#		define _SVID_SOURCE
+#	endif
+#	ifndef _DEFAULT_SOURCE
+#		define _DEFAULT_SOURCE
+#	endif
 #endif
 
 #ifdef ENDIANNESS_CONFIG_HAVE_ENDIAN_H
@@ -78,8 +84,21 @@
 #	include <inttypes.h>
 #endif
 
+/* 
+	Using features.h we can test for the GLIBC version. 
+	If it is below 2.9 "endian.h" will be missing the required functions.
+	See http://linux.die.net/man/3/endian
+ */
 #ifdef ENDIANNESS_CONFIG_HAVE_FEATURES_H
 #	include <features.h>
+#   if !defined(__GLIBC__) || !defined(__GLIBC_MINOR__) || ((__GLIBC__ < 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ < 9)))
+#		if defined(ENDIANNESS_CONFIG_HAVE_ENDIAN_H)
+#			undef ENDIANNESS_CONFIG_HAVE_ENDIAN_H
+#		endif
+#		if defined(ENDIANNESS_CONFIG_HAVE_SYS_ENDIAN_H)
+#			undef ENDIANNESS_CONFIG_HAVE_SYS_ENDIAN_H
+#		endif
+#	endif
 #endif
 
 #ifdef ENDIANNESS_CONFIG_HAVE_ARPA_INET_H
@@ -91,6 +110,7 @@
 #endif
 
 #ifdef ENDIANNESS_CONFIG_HAVE_LIBKERN_OSBYTEORDER_H
+
 #	include <libkern/OSByteOrder.h>
 
 #	define htobe16(x) OSSwapHostToBigInt16(x)
@@ -110,6 +130,9 @@
 
 #elif defined(ENDIANNESS_CONFIG_HAVE_NON_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && !defined(ENDIANNESS_CONFIG_HAVE_OPENBSD_STYLE_ENDIAN_FUNCTIONS)
 
+/*
+	Define the methods  using those that are in the Non-OpenBSD style
+ */
 #	define betoh16(x) be16toh((x))
 #	define letoh16(x) le16toh((x))
 #	define betoh32(x) be32toh((x))
@@ -118,6 +141,7 @@
 #	define letoh64(x) le64toh((x))
 
 #elif (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && defined(ENDIANNESS_CONFIG_HAVE_WINSOCK2_H) && ((ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN) || (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN))
+
 #	if (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN)
 #		define htobe16(x) htons(x)
 #		define htole16(x) (x)
@@ -148,7 +172,7 @@
 #	endif
 
 #elif !defined(ENDIANNESS_CONFIG_HAVE_NON_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && !defined(ENDIANNESS_CONFIG_HAVE_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && (defined(ENDIANNESS_CONFIG_HAVE_ARPA_INET_H) || defined(ENDIANNESS_CONFIG_HAVE_NETINET_IN_H)) && ((ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN) || (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN))
-#	if ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN
+#	if (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN)
 #   	define htobe16(x) htons(x)
 #		define htole16(x) (x)
 #		define betoh16(x) ntohs(x)
@@ -163,7 +187,7 @@
 #		define htole64(x) (x)
 #		define betoh64(x) (((uint64_t)ntohl(((uint32_t)(((uint64_t)(x)) >> 32)))) | (((uint64_t)ntohl(((uint32_t)(x)))) << 32))
 #		define letoh64(x) (x)
-#	elif ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN
+#	elif (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN)
 #		define htobe16(x) (x)
 #		define htole16(x) ((((((uint16_t)(x)) >> 8))|((((uint16_t)(x)) << 8)))
 #		define betoh16(x) (x)
@@ -196,6 +220,9 @@
 #	define letoh64(x) from_little_endian64(x)
 #endif
 
+/*
+	Datatypes for accessing the bytes of uintNN_t
+ */
 union Endian_Data_16 {
 	uint16_t integer_value;
 	unsigned char char_values[2];
@@ -211,6 +238,10 @@ union Endian_Data_64 {
 	unsigned char char_values[8];
 };
 
+/*
+	Custom, non-system dependent implementations of the endian-switching functions.
+	These depend on the correct findings of the CMake endian test.
+ */
 uint16_t to_little_endian16(uint16_t value) {
 	union Endian_Data_16 endian_data;
 	union Endian_Data_16 endian_data_copy;

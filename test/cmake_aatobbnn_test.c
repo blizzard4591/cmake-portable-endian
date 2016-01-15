@@ -5,25 +5,27 @@
 
 /* Necessary for some systems to expose functions */
 #ifndef _BSD_SOURCE
-#define _BSD_SOURCE
+#	define _BSD_SOURCE
 #endif
 #ifndef _SVID_SOURCE
-#define _SVID_SOURCE
+#	define _SVID_SOURCE
 #endif
 #ifndef _DEFAULT_SOURCE
-#define _DEFAULT_SOURCE
+#	define _DEFAULT_SOURCE
 #endif
 
 #ifdef ENDIANNESS_CONFIG_TESTCOMPILE_HAVE_ENDIAN_H
-#include <endian.h>
+#	include <endian.h>
 #endif
 
 #ifdef ENDIANNESS_CONFIG_TESTCOMPILE_HAVE_SYS_ENDIAN_H
-#include <sys/endian.h>
+#	include <sys/endian.h>
 #endif
 
 #ifdef ENDIANNESS_CONFIG_TESTCOMPILE_TRY_OPENBSD_SYNTAX
-#define le16toh(x) letoh16((x))
+#	define le16toh(x) letoh16((x))
+#	define le32toh(x) letoh32((x))
+#	define le64toh(x) letoh64((x))
 #endif
 
 int main (int argc, char** argv) {
