@@ -4,6 +4,9 @@
 #include <stdint.h>
 
 /* Necessary for some systems to expose functions */
+#ifndef __USE_BSD
+#	define __USE_BSD
+#endif
 #ifndef _BSD_SOURCE
 #	define _BSD_SOURCE
 #endif

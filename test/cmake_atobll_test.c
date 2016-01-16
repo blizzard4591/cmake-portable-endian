@@ -5,6 +5,9 @@
 
 /* Necessary for some systems to expose functions */
 #if !(defined(_WIN16) || defined(_WIN32) || defined(_WIN64))
+#	ifndef __USE_BSD
+#		define __USE_BSD
+#	endif
 #	ifndef _BSD_SOURCE
 #		define _BSD_SOURCE
 #	endif
