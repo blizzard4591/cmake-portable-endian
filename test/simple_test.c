@@ -54,7 +54,7 @@ int main (int argc, char** argv) {
 	union Endian_Data_64 data64bitLittle;
 	union Endian_Data_64 data64bitBig;
 	
-	data64bitHost.integer_value = -81985529216486896LL;
+	data64bitHost.integer_value = 18364758544493064720ULL;
 	data64bitLittle.char_values[0] = 0x10;
 	data64bitLittle.char_values[1] = 0x32;
 	data64bitLittle.char_values[2] = 0x54;

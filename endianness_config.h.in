@@ -45,6 +45,21 @@
 // Whether the endian.h or sys/endian.h functions use Non-OpenBSD style (le16toh)
 #cmakedefine ENDIANNESS_CONFIG_HAVE_NON_OPENBSD_STYLE_ENDIAN_FUNCTIONS
 
+// Whether the compiler supports builtin byteswap intrinsics (__builtin_bswap16)
+#cmakedefine ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS
+
+// Whether the compiler supports builtin byteswap intrinsics (_byteswap_ushort)
+#cmakedefine ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS
+
+// Whether the 16bit hton functions are available (htons, ntohs)
+#cmakedefine ENDIANNESS_CONFIG_HAVE_HTONS_FUNCTIONS
+
+// Whether the 32bit hton functions are available (htonl, ntohl)
+#cmakedefine ENDIANNESS_CONFIG_HAVE_HTONL_FUNCTIONS
+
+// Whether the 64bit hton functions are available (htonll, ntohll)
+#cmakedefine ENDIANNESS_CONFIG_HAVE_HTONLL_FUNCTIONS
+
 #endif // ENDIANNESS_CONFIG_FORCE_NON_SYSTEM_IMPLEMENTATION
 
 @ENDIANNESS_CONFIG_TEST_RUN_OUTPUT@
@@ -109,8 +124,19 @@
 #	include <netinet/in.h>
 #endif
 
-#ifdef ENDIANNESS_CONFIG_HAVE_LIBKERN_OSBYTEORDER_H
+#ifdef ENDIANNESS_CONFIG_HAVE_WINSOCK2_H
+#	include <WinSock2.h>
+#endif
 
+#if defined(ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS) && !defined(ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS)
+#	define __builtin_bswap16(x) _byteswap_ushort((x))
+#	define __builtin_bswap32(x) _byteswap_ulong((x))
+#	define __builtin_bswap64(x) _byteswap_uint64((x))
+#	define ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS
+#endif
+
+#ifdef ENDIANNESS_CONFIG_HAVE_LIBKERN_OSBYTEORDER_H
+/* Apple Systems, Mac OS */
 #	include <libkern/OSByteOrder.h>
 
 #	define htobe16(x) OSSwapHostToBigInt16(x)
@@ -130,9 +156,7 @@
 
 #elif defined(ENDIANNESS_CONFIG_HAVE_NON_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && !defined(ENDIANNESS_CONFIG_HAVE_OPENBSD_STYLE_ENDIAN_FUNCTIONS)
 
-/*
-	Define the methods  using those that are in the Non-OpenBSD style
- */
+/* Define the methods using those that are in the Non-OpenBSD style */
 #	define betoh16(x) be16toh((x))
 #	define letoh16(x) le16toh((x))
 #	define betoh32(x) be32toh((x))
@@ -140,72 +164,101 @@
 #	define betoh64(x) be64toh((x))
 #	define letoh64(x) le64toh((x))
 
-#elif (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && defined(ENDIANNESS_CONFIG_HAVE_WINSOCK2_H) && ((ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN) || (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN))
+#elif !defined(ENDIANNESS_CONFIG_HAVE_NON_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && !defined(ENDIANNESS_CONFIG_HAVE_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN)
 
-#	if (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN)
+/* 16bit functions */
+#	if defined(ENDIANNESS_CONFIG_HAVE_HTONS_FUNCTIONS)
 #		define htobe16(x) htons(x)
 #		define htole16(x) (x)
 #		define betoh16(x) ntohs(x)
 #		define letoh16(x) (x)
+#	elif defined(ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS) || defined(ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS)
+#		define htobe16(x) __builtin_bswap16(x)
+#		define htole16(x) (x)
+#		define betoh16(x) __builtin_bswap16(x)
+#		define letoh16(x) (x)
+#	else
+#		define htobe16(x) to_big_endian16(x)
+#		define htole16(x) (x)
+#		define betoh16(x) from_big_endian16(x)
+#		define letoh16(x) (x)
+#	endif
+/* 32bit functions */
+#	if defined(ENDIANNESS_CONFIG_HAVE_HTONL_FUNCTIONS)
 #		define htobe32(x) htonl(x)
 #		define htole32(x) (x)
-#		define betoh32(x) ntohl(x)
+#			define betoh32(x) ntohl(x)
 #		define letoh32(x) (x)
+#	elif defined(ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS) || defined(ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS)
+#		define htobe32(x) __builtin_bswap32(x)
+#		define htole32(x) (x)
+#		define betoh32(x) __builtin_bswap32(x)
+#		define letoh32(x) (x)
+#	else
+#		define htobe32(x) to_big_endian32(x)
+#		define htole32(x) (x)
+#		define betoh32(x) from_big_endian32(x)
+#		define letoh32(x) (x)
+#	endif
+/* 64bit functions */
+#	if defined(ENDIANNESS_CONFIG_HAVE_HTONLL_FUNCTIONS)
 #		define htobe64(x) htonll(x)
 #		define htole64(x) (x)
 #		define betoh64(x) ntohll(x)
 #		define letoh64(x) (x)
-#	elif (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN)
-		/* Could be Xbox 360 */
+#	elif defined(ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS) || defined(ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS)
+#		define htobe64(x) __builtin_bswap64(x)
+#		define htole64(x) (x)
+#		define betoh64(x) __builtin_bswap64(x)
+#		define letoh64(x) (x)
+#	else
+#		define htobe64(x) to_big_endian64(x)
+#		define htole64(x) (x)
+#		define betoh64(x) from_big_endian64(x)
+#		define letoh64(x) (x)
+#	endif
+
+#elif !defined(ENDIANNESS_CONFIG_HAVE_NON_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && !defined(ENDIANNESS_CONFIG_HAVE_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN)
+
+/* 16bit functions */
+#	if defined(ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS) || defined(ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS)
 #		define htobe16(x) (x)
 #		define htole16(x) __builtin_bswap16(x)
 #		define betoh16(x) (x)
 #		define letoh16(x) __builtin_bswap16(x)
+#	else
+#		define htobe16(x) (x)
+#		define htole16(x) to_little_endian16(x)
+#		define betoh16(x) (x)
+#		define letoh16(x) from_little_endian16(x)
+#	endif
+/* 32bit functions */
+#	if defined(ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS) || defined(ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS)
 #		define htobe32(x) (x)
 #		define htole32(x) __builtin_bswap32(x)
 #		define betoh32(x) (x)
 #		define letoh32(x) __builtin_bswap32(x)
+#	else
+#		define htobe32(x) (x)
+#		define htole32(x) to_little_endian32(x)
+#		define betoh32(x) (x)
+#		define letoh32(x) from_little_endian32(x)
+#	endif
+/* 64bit functions */
+#	if defined(ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS) || defined(ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS)
 #		define htobe64(x) (x)
 #		define htole64(x) __builtin_bswap64(x)
 #		define betoh64(x) (x)
 #		define letoh64(x) __builtin_bswap64(x)
-#	endif
-
-#elif !defined(ENDIANNESS_CONFIG_HAVE_NON_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && !defined(ENDIANNESS_CONFIG_HAVE_OPENBSD_STYLE_ENDIAN_FUNCTIONS) && (defined(ENDIANNESS_CONFIG_HAVE_ARPA_INET_H) || defined(ENDIANNESS_CONFIG_HAVE_NETINET_IN_H)) && ((ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN) || (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN))
-#	if (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_LITTLE_ENDIAN)
-#   	define htobe16(x) htons(x)
-#		define htole16(x) (x)
-#		define betoh16(x) ntohs(x)
-#		define letoh16(x) (x)
-
-#		define htobe32(x) htonl(x)
-#		define htole32(x) (x)
-#		define betoh32(x) ntohl(x)
-#		define letoh32(x) (x)
-
-#		define htobe64(x) (((uint64_t)htonl(((uint32_t)(((uint64_t)(x)) >> 32)))) | (((uint64_t)htonl(((uint32_t)(x)))) << 32))
-#		define htole64(x) (x)
-#		define betoh64(x) (((uint64_t)ntohl(((uint32_t)(((uint64_t)(x)) >> 32)))) | (((uint64_t)ntohl(((uint32_t)(x)))) << 32))
-#		define letoh64(x) (x)
-#	elif (ENDIANNESS_CONFIG_ENDIAN_TYPE == ENDIANNESS_VAL_BIG_ENDIAN)
-#		define htobe16(x) (x)
-#		define htole16(x) ((((((uint16_t)(x)) >> 8))|((((uint16_t)(x)) << 8)))
-#		define betoh16(x) (x)
-#		define letoh16(x) ((((((uint16_t)(x)) >> 8))|((((uint16_t)(x)) << 8)))
-
-#		define htobe32(x) (x)
-#		define htole32(x) (((uint32_t)htole16(((uint16_t)(((uint32_t)(x)) >> 16)))) | (((uint32_t)htole16(((uint16_t)(x)))) << 16))
-#		define betoh32(x) (x)
-#		define letoh32(x) (((uint32_t)le16toh(((uint16_t)(((uint32_t)(x)) >> 16)))) | (((uint32_t)le16toh(((uint16_t)(x)))) << 16))
-
+#	else
 #		define htobe64(x) (x)
-#		define htole64(x) (((uint64_t)htole32(((uint32_t)(((uint64_t)(x)) >> 32)))) | (((uint64_t)htole32(((uint32_t)(x)))) << 32))
+#		define htole64(x) to_little_endian64(x)
 #		define betoh64(x) (x)
-#		define letoh64(x) (((uint64_t)le32toh(((uint32_t)(((uint64_t)(x)) >> 32)))) | (((uint64_t)le32toh(((uint32_t)(x)))) << 32))
+#		define letoh64(x) from_little_endian64(x)
 #	endif
-#elif defined(ENDIANNESS_CONFIG_HAVE_OPENBSD_STYLE_ENDIAN_FUNCTIONS)
-	/* Ah great, this defines all the functions we need */
+
 #else
+/* fallback if no system-provided functions are available */
 #	define htobe16(x) to_big_endian16(x)
 #	define htole16(x) to_little_endian16(x)
 #	define betoh16(x) from_big_endian16(x)
