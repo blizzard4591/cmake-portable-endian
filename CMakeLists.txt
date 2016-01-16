@@ -74,9 +74,10 @@ else()
 	message(STATUS "Compiler has NO %zu support, result was ${ENDIANNESS_ZUSUPPORT_TEST_RUN_OUTPUT} instead of 1234.")
 endif()
 
+SET(ENDIANNESS_OLD_C_FLAGS "${CMAKE_C_FLAGS}")
 if(CMAKE_COMPILER_IS_GNUCC)
 	message(STATUS "Compiler: GNU CC")
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-format -Werror=implicit -pedantic -Wno-unused-but-set-variable")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-format -Werror=implicit -pedantic -Wno-unused-but-set-variable -std=c99")
 elseif(MSVC)
 	message(STATUS "Compiler: MSVC")
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall /we4013 /wd4100 /wd4820")
@@ -174,4 +175,5 @@ if (ENDIANNESS_EXPOSE_TEST_APPLICATION)
 	target_link_libraries(endianness-simple-test "${ENDIANNESS_LINK_LIBRARIES}")
 endif()
 
-
+# Restore C flags for other projects
+SET(CMAKE_C_FLAGS "${ENDIANNESS_OLD_C_FLAGS}")
