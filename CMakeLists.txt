@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(endianness C)
 
 option(ENDIANNESS_FORCE_NON_SYSTEM_IMPLEMENTATION OFF)
+option(ENDIANNESS_EXPOSE_TEST_APPLICATION OFF)
 
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_BINARY_DIR}")
@@ -167,3 +168,10 @@ elseif(NOT "${ENDIANNESS_SIMPLE_CONFIG_TEST_RUN_RESULT}" EQUAL "1")
 else()
 	message(STATUS "Success! The generated portable endian config file seems to work!")
 endif()
+
+if (ENDIANNESS_EXPOSE_TEST_APPLICATION)
+	add_executable(endianness-simple-test "${CMAKE_CURRENT_SOURCE_DIR}/test/simple_test.c")
+	target_link_libraries(endianness-simple-test "${ENDIANNESS_LINK_LIBRARIES}")
+endif()
+
+

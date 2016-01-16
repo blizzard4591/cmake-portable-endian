@@ -7,70 +7,70 @@
 #ifndef ENDIANNESS_GENERATED_CONFIG_H_
 #define ENDIANNESS_GENERATED_CONFIG_H_
 
-// If a non-system implementation is forced, dont define any headers as available
+/* If a non-system implementation is forced, do not define any headers as available */
 #cmakedefine ENDIANNESS_CONFIG_FORCE_NON_SYSTEM_IMPLEMENTATION
 
 #ifndef ENDIANNESS_CONFIG_FORCE_NON_SYSTEM_IMPLEMENTATION
 
-// Whether endian.h is available
+/* Whether endian.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_ENDIAN_H
 
-// Whether sys/endian.h is available
+/* Whether sys/endian.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_SYS_ENDIAN_H
 
-// Whether sys/param.h is available
+/* Whether sys/param.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_SYS_PARAM_H
 
-// Whether inttypes.h is available
+/* Whether inttypes.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_INTTYPES_H
 
-// Whether features.h is available
+/* Whether features.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_FEATURES_H
 
-// Whether libkern/OSByteOrder.h is available
+/* Whether libkern/OSByteOrder.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_LIBKERN_OSBYTEORDER_H
 
-// Whether arpa/inet.h is available
+/* Whether arpa/inet.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_ARPA_INET_H
 
-// Whether netinet/in.h is available
+/* Whether netinet/in.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_NETINET_IN_H
 
-// Whether winsock2.h is available
+/* Whether winsock2.h is available */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_WINSOCK2_H
 
-// Whether the endian.h or sys/endian.h functions use OpenBSD style (letoh16)
+/* Whether the endian.h or sys/endian.h functions use OpenBSD style (letoh16) */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_OPENBSD_STYLE_ENDIAN_FUNCTIONS
 
-// Whether the endian.h or sys/endian.h functions use Non-OpenBSD style (le16toh)
+/* Whether the endian.h or sys/endian.h functions use Non-OpenBSD style (le16toh) */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_NON_OPENBSD_STYLE_ENDIAN_FUNCTIONS
 
-// Whether the compiler supports builtin byteswap intrinsics (__builtin_bswap16)
+/* Whether the compiler supports builtin byteswap intrinsics (__builtin_bswap16) */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_GCC_STYLE_BSWAP_FUNCTIONS
 
-// Whether the compiler supports builtin byteswap intrinsics (_byteswap_ushort)
+/* Whether the compiler supports builtin byteswap intrinsics (_byteswap_ushort) */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_MSVC_STYLE_BSWAP_FUNCTIONS
 
-// Whether the 16bit hton functions are available (htons, ntohs)
+/* Whether the 16bit hton functions are available (htons, ntohs) */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_HTONS_FUNCTIONS
 
-// Whether the 32bit hton functions are available (htonl, ntohl)
+/* Whether the 32bit hton functions are available (htonl, ntohl) */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_HTONL_FUNCTIONS
 
-// Whether the 64bit hton functions are available (htonll, ntohll)
+/* Whether the 64bit hton functions are available (htonll, ntohll) */
 #cmakedefine ENDIANNESS_CONFIG_HAVE_HTONLL_FUNCTIONS
 
-#endif // ENDIANNESS_CONFIG_FORCE_NON_SYSTEM_IMPLEMENTATION
+#endif /* ENDIANNESS_CONFIG_FORCE_NON_SYSTEM_IMPLEMENTATION */
 
 @ENDIANNESS_CONFIG_TEST_RUN_OUTPUT@
 
 /* ------------------------------------------------------------------- */
-// Function declarations, depending on the macro values above.
+/* Function declarations, depending on the macro values above. */
 
 #include <stddef.h>
 #include <stdint.h>
 
-// Necessary for some systems to expose functions
+/* Necessary for some systems to expose functions */
 #if !(defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(ENDIANNESS_CONFIG_FORCE_NON_SYSTEM_IMPLEMENTATION)
 #	ifndef _BSD_SOURCE
 #		define _BSD_SOURCE
@@ -451,4 +451,4 @@ uint64_t from_big_endian64(uint64_t value) {
 	return endian_data.integer_value;
 }
 
-#endif // ENDIANNESS_GENERATED_CONFIG_H_
+#endif /* ENDIANNESS_GENERATED_CONFIG_H_ */

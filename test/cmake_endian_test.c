@@ -6,9 +6,7 @@
 
 #include "printf_types.h"
 
-/* Test local endianness.
- *
- */
+/* Test local endianness. */
 
 union Endian_Data_16 {
 	uint16_t integer_value;
@@ -51,7 +49,7 @@ union Endian_Data_64 {
 		unsigned char value; \
 		value = endian_data.char_values[i]; \
 		if (value != 0xFF) { \
-			printf("Error: Sanity test for "#bits"-bits failed for Byte 0x%02x at position %" PRINTF_SIZE_T_QUALIFIER "!\n", value, i); \
+			printf("#error Sanity test for "#bits"-bits failed for Byte 0x%02x at position %" PRINTF_SIZE_T_QUALIFIER "!\n", value, i); \
 			returnvar = (RETURNVAR_SANITY_TEST_FAILED); \
 		} \
 	}
@@ -71,13 +69,13 @@ union Endian_Data_64 {
 		endian_data.integer_value += i * multiplication_value; \
 		multiplication_value *= 256; \
 	} \
-	printf("// Constant for "#bits"-bits is %" ENDIANNESS_MACRO_PRIMITVE_TYPE_PRINTF_MACRO_FROM_BITS(bits) ".\n", endian_data.integer_value); \
+	printf("/* Constant for "#bits"-bits is %" ENDIANNESS_MACRO_PRIMITVE_TYPE_PRINTF_MACRO_FROM_BITS(bits) ". */\n", endian_data.integer_value); \
  \
 	char position_LSB_plus[sizeof(union Endian_Data_##bits)]; \
 	/* Initialize to "invalid" */ \
 	for (i = 0; i < size_of_endian_data; ++i) { \
 		position_LSB_plus[i] = -1; \
-		printf("// Byte %" ENDIANNESS_MACRO_PRIMITVE_TYPE_PRINTF_MACRO_FROM_BITS(bits) " in "#bits"-bits constant is 0x%02x.\n", i, endian_data.char_values[i]); \
+		printf("/* Byte %" ENDIANNESS_MACRO_PRIMITVE_TYPE_PRINTF_MACRO_FROM_BITS(bits) " in "#bits"-bits constant is 0x%02x. */\n", i, endian_data.char_values[i]); \
 	} \
  \
 	int is_little_endian; \
@@ -91,14 +89,14 @@ union Endian_Data_64 {
 		if (value < size_of_endian_data) { \
 			position_LSB_plus[value] = (char)i; \
 		} else { \
-			printf("Error: Unknown Byte 0x%02x at position %" ENDIANNESS_MACRO_PRIMITVE_TYPE_PRINTF_MACRO_FROM_BITS(bits) "!\n", value, i); \
+			printf("#error Unknown Byte 0x%02x at position %" ENDIANNESS_MACRO_PRIMITVE_TYPE_PRINTF_MACRO_FROM_BITS(bits) "!\n", value, i); \
 			return 1; \
 		} \
 	} \
  \
 	for (i = 0; i < size_of_endian_data; ++i) { \
 		if (position_LSB_plus[i] == -1) { \
-			printf("Error: Did not find Index for LSB+%" ENDIANNESS_MACRO_PRIMITVE_TYPE_PRINTF_MACRO_FROM_BITS(bits) "?!\n", i); \
+			printf("#error Did not find Index for LSB+%" ENDIANNESS_MACRO_PRIMITVE_TYPE_PRINTF_MACRO_FROM_BITS(bits) "?!\n", i); \
 			return 2; \
 		} \
 	} \
@@ -134,7 +132,7 @@ union Endian_Data_64 {
 	} \
  \
 	if (is_little_endian && is_big_endian) { \
-		printf("Error: Detected both big and little endian. This should not happen.\n"); \
+		printf("#error Detected both big and little endian. This should not happen.\n"); \
 		return 3; \
 	} else if (is_little_endian) { \
 		returnvar = RETURNVAR_LITTLE_ENDIAN; \
@@ -194,7 +192,7 @@ int main(int argc, char* argv[]) {
 	}
 	
 	if ((test_16bit_result == test_32bit_result) && (test_32bit_result == test_64bit_result)) {
-		printf("// A value for identifying endiannes\n");
+		printf("/* A value for identifying endiannes */\n");
 		printf("#define ENDIANNESS_VAL_LITTLE_ENDIAN 1\n");
 		printf("#define ENDIANNESS_VAL_BIG_ENDIAN 2\n");
 		printf("#define ENDIANNESS_VAL_MIXED_ENDIAN 3\n");
@@ -206,7 +204,8 @@ int main(int argc, char* argv[]) {
 			printf("#define ENDIANNESS_CONFIG_ENDIAN_TYPE ENDIANNESS_VAL_MIXED_ENDIAN\n");
 		}
 	} else {
-		printf("Error: 16bit, 32bit and 64bit Endian is NOT equivalent. Unknown/unsupported architecture.\n"); /* This should _not_ exist. */
+		/* This should _not_ exist. */
+		printf("#error Detected 16bit, 32bit and 64bit Endian is NOT equivalent. Unknown/unsupported architecture.\n");
 		return 4;
 	}
 	

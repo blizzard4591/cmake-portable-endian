@@ -16,7 +16,7 @@
 	convTargetUnion.integer_value = funcName(sourceUnion.integer_value); \
 	for (i = 0; i < byteCount; ++i) { \
 		if (convTargetUnion.char_values[i] != cmpUnion.char_values[i]) { \
-			printf("Test on "#funcName" failed at position %" PRINTF_SIZE_T_QUALIFIER ", where it should be 0x%02x but was 0x%02x instead.", i, convTargetUnion.char_values[i], cmpUnion.char_values[i]); \
+			printf("Test on "#funcName" failed at position %" PRINTF_SIZE_T_QUALIFIER ", where it should be 0x%02x but was 0x%02x instead.\n", i, convTargetUnion.char_values[i], cmpUnion.char_values[i]); \
 			return -1; \
 		} \
 	} \
@@ -113,5 +113,7 @@ int main (int argc, char** argv) {
 	/* letoh64 */
 	ENDIANNESS_TEST_MACRO_COMPARE_RESULT(letoh64, data64bit, data64bitLittle, data64bitHost, 8);
 	
+	printf("Success.\n");
+
 	return 1;
 }
