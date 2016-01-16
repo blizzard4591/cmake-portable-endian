@@ -28,6 +28,8 @@
 #	include <netinet/in.h>
 #endif
 
+#include "printf_types.h"
+
 int main (int argc, char** argv) {
 	uint32_t var32bit;
 	
@@ -37,6 +39,9 @@ int main (int argc, char** argv) {
 	
 	var32bitResult = htonl(var32bit);
 	var32bitResult = ntohl(var32bit);
+	
+	/* for preventing unused variable warnings */
+	printf("Argc = %i\nArgv[0] = %s\nResult 32bit = %"PRIu32"\n", argc, argv[0], var32bitResult);
 	
 	return 0;
 }

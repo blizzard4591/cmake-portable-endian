@@ -35,7 +35,7 @@ int main (int argc, char** argv) {
 	var64bitResult = __builtin_bswap64(var64bit);
 	
 	/* for preventing unused variable warnings */
-	printf("Argc = %i\nArgv[0] = %s\nResult 16bit = %"PRIu16"\nResult 32bit = %"PRIu32"\nResult 64bit = %"PRIu64"\n");
+	printf("Argc = %i\nArgv[0] = %s\nResult 16bit = %"PRIu16"\nResult 32bit = %"PRIu32"\nResult 64bit = %"PRIu64"\n", argc, argv[0], var16bitResult, var32bitResult, var64bitResult);
 	
 	return 0;
 }

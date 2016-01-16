@@ -28,6 +28,8 @@
 #	include <netinet/in.h>
 #endif
 
+#include "printf_types.h"
+
 int main (int argc, char** argv) {
 	uint16_t var16bit;
 	
@@ -37,6 +39,9 @@ int main (int argc, char** argv) {
 	
 	var16bitResult = htons(var16bit);
 	var16bitResult = ntohs(var16bit);
+	
+	/* for preventing unused variable warnings */
+	printf("Argc = %i\nArgv[0] = %s\nResult 16bit = %"PRIu16"\n", argc, argv[0], var16bitResult);
 	
 	return 0;
 }

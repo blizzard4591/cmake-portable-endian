@@ -45,4 +45,4 @@
 #	define PRINTF_SIZE_T_QUALIFIER "zu"
 #endif
 
-#endif // ENDIANNESS_TEST_PRINTF_TYPES_H_
+#endif /* ENDIANNESS_TEST_PRINTF_TYPES_H_ */

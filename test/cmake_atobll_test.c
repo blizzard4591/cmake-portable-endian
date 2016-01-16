@@ -28,6 +28,8 @@
 #	include <netinet/in.h>
 #endif
 
+#include "printf_types.h"
+
 int main (int argc, char** argv) {
 	uint64_t var64bit;
 	uint64_t tmp;
@@ -41,6 +43,9 @@ int main (int argc, char** argv) {
 	
 	var64bitResult = htonll(var64bit);
 	var64bitResult = ntohll(var64bit);
+	
+	/* for preventing unused variable warnings */
+	printf("Argc = %i\nArgv[0] = %s\nResult 64bit = %"PRIu64"\n", argc, argv[0], var64bitResult);
 	
 	return 0;
 }
