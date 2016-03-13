@@ -177,3 +177,7 @@ endif()
 
 # Restore C flags for other projects
 SET(CMAKE_C_FLAGS "${ENDIANNESS_OLD_C_FLAGS}")
+
+# Export necessary Libraries
+SET(ENDIANNESS_LINK_LIBRARIES "${ENDIANNESS_LINK_LIBRARIES}" PARENT_SCOPE)
+message(STATUS "Programs need to be linked with ${ENDIANNESS_LINK_LIBRARIES}")
