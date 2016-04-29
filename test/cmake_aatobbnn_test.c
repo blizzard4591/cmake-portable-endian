@@ -4,17 +4,19 @@
 #include <stdint.h>
 
 /* Necessary for some systems to expose functions */
-#ifndef __USE_BSD
-#	define __USE_BSD
-#endif
-#ifndef _BSD_SOURCE
-#	define _BSD_SOURCE
-#endif
-#ifndef _SVID_SOURCE
-#	define _SVID_SOURCE
-#endif
-#ifndef _DEFAULT_SOURCE
-#	define _DEFAULT_SOURCE
+#if !(defined(_WIN16) || defined(_WIN32) || defined(_WIN64))
+#	ifndef __USE_BSD
+#		define __USE_BSD
+#	endif
+#	ifndef _BSD_SOURCE
+#		define _BSD_SOURCE
+#	endif
+#	ifndef _SVID_SOURCE
+#		define _SVID_SOURCE
+#	endif
+#	ifndef _DEFAULT_SOURCE
+#		define _DEFAULT_SOURCE
+#	endif
 #endif
 
 #ifdef ENDIANNESS_CONFIG_TESTCOMPILE_HAVE_ENDIAN_H
