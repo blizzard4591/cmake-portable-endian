@@ -454,6 +454,6 @@ uint64_t from_big_endian64(uint64_t value) {
 	
 	return endian_data.integer_value;
 }
-#emdif /* ENDIANNESS_CONFIG_FORCE_SYSTEM_IMPLEMENTATION */
+#endif /* ENDIANNESS_CONFIG_FORCE_SYSTEM_IMPLEMENTATION */
 
 #endif /* ENDIANNESS_GENERATED_CONFIG_H_ */
