@@ -283,6 +283,13 @@
 #endif
 
 #ifndef ENDIANNESS_CONFIG_FORCE_SYSTEM_IMPLEMENTATION
+#ifdef ENDIANNESS_CONFIG_STATIC
+# undef ENDIANNESS_CONFIG_STATIC
+# define ENDIANNESS_CONFIG_STATIC static
+#else
+# define ENDIANNESS_CONFIG_STATIC
+#endif
+
 /*
 	Datatypes for accessing the bytes of uintNN_t
  */
@@ -305,161 +312,151 @@ union Endian_Data_64 {
 	Custom, non-system dependent implementations of the endian-switching functions.
 	These depend on the correct findings of the CMake endian test.
  */
-uint16_t to_little_endian16(uint16_t value) {
-	union Endian_Data_16 endian_data;
-	union Endian_Data_16 endian_data_copy;
-	endian_data_copy.integer_value = value;
+#define ENDIANNESS_CONFIG_DATVAL2(L,R)   endian_data.char_values[L] = endian_data_copy.char_values[R];
+#define ENDIANNESS_CONFIG_DATVALR(B,R,N) ENDIANNESS_CONFIG_DATVAL2(R ? (B - 1 - N) : N, ENDIANNESS_##B##_BYTE_TYPE_LSB_PLUS_##N##_INDEX)
+#define ENDIANNESS_CONFIG_DATVALL(B,R,N) ENDIANNESS_CONFIG_DATVAL2(ENDIANNESS_##B##_BYTE_TYPE_LSB_PLUS_##N##_INDEX, R ? (B - 1 - N) : N)
+#define ENDIANNESS_CONFIG_VARS(B) \
+  union Endian_Data_##B endian_data; \
+  union Endian_Data_##B endian_data_copy; \
+  endian_data_copy.integer_value = value;
 
-	endian_data.char_values[0] = endian_data_copy.char_values[ENDIANNESS_2_BYTE_TYPE_LSB_PLUS_0_INDEX];
-	endian_data.char_values[1] = endian_data_copy.char_values[ENDIANNESS_2_BYTE_TYPE_LSB_PLUS_1_INDEX];
+ENDIANNESS_CONFIG_STATIC uint16_t to_little_endian16(uint16_t value) {
+	ENDIANNESS_CONFIG_VARS(16)
 
-	return endian_data.integer_value;
-}
-uint32_t to_little_endian32(uint32_t value) {
-	union Endian_Data_32 endian_data;
-	union Endian_Data_32 endian_data_copy;
-	endian_data_copy.integer_value = value;
-
-	endian_data.char_values[0] = endian_data_copy.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_0_INDEX];
-	endian_data.char_values[1] = endian_data_copy.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_1_INDEX];
-	endian_data.char_values[2] = endian_data_copy.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_2_INDEX];
-	endian_data.char_values[3] = endian_data_copy.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_3_INDEX];
+	ENDIANNESS_CONFIG_DATVALR(2, 0, 0)
+	ENDIANNESS_CONFIG_DATVALR(2, 0, 1)
 
 	return endian_data.integer_value;
 }
-uint64_t to_little_endian64(uint64_t value) {
-	union Endian_Data_64 endian_data;
-	union Endian_Data_64 endian_data_copy;
-	endian_data_copy.integer_value = value;
+ENDIANNESS_CONFIG_STATIC uint32_t to_little_endian32(uint32_t value) {
+	ENDIANNESS_CONFIG_VARS(32)
 
-	endian_data.char_values[0] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_0_INDEX];
-	endian_data.char_values[1] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_1_INDEX];
-	endian_data.char_values[2] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_2_INDEX];
-	endian_data.char_values[3] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_3_INDEX];
-	endian_data.char_values[4] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_4_INDEX];
-	endian_data.char_values[5] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_5_INDEX];
-	endian_data.char_values[6] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_6_INDEX];
-	endian_data.char_values[7] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_7_INDEX];
+	ENDIANNESS_CONFIG_DATVALR(4, 0, 0)
+	ENDIANNESS_CONFIG_DATVALR(4, 0, 1)
+	ENDIANNESS_CONFIG_DATVALR(4, 0, 2)
+	ENDIANNESS_CONFIG_DATVALR(4, 0, 3)
 
 	return endian_data.integer_value;
 }
+ENDIANNESS_CONFIG_STATIC uint64_t to_little_endian64(uint64_t value) {
+	ENDIANNESS_CONFIG_VARS(64)
 
-uint16_t to_big_endian16(uint16_t value) {
-	union Endian_Data_16 endian_data;
-	union Endian_Data_16 endian_data_copy;
-	endian_data_copy.integer_value = value;
-
-	endian_data.char_values[0] = endian_data_copy.char_values[ENDIANNESS_2_BYTE_TYPE_LSB_PLUS_1_INDEX];
-	endian_data.char_values[1] = endian_data_copy.char_values[ENDIANNESS_2_BYTE_TYPE_LSB_PLUS_0_INDEX];
-
-	return endian_data.integer_value;
-}
-uint32_t to_big_endian32(uint32_t value) {
-	union Endian_Data_32 endian_data;
-	union Endian_Data_32 endian_data_copy;
-	endian_data_copy.integer_value = value;
-
-	endian_data.char_values[0] = endian_data_copy.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_3_INDEX];
-	endian_data.char_values[1] = endian_data_copy.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_2_INDEX];
-	endian_data.char_values[2] = endian_data_copy.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_1_INDEX];
-	endian_data.char_values[3] = endian_data_copy.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_0_INDEX];
-
-	return endian_data.integer_value;
-}
-uint64_t to_big_endian64(uint64_t value) {
-	union Endian_Data_64 endian_data;
-	union Endian_Data_64 endian_data_copy;
-	endian_data_copy.integer_value = value;
-
-	endian_data.char_values[0] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_7_INDEX];
-	endian_data.char_values[1] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_6_INDEX];
-	endian_data.char_values[2] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_5_INDEX];
-	endian_data.char_values[3] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_4_INDEX];
-	endian_data.char_values[4] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_3_INDEX];
-	endian_data.char_values[5] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_2_INDEX];
-	endian_data.char_values[6] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_1_INDEX];
-	endian_data.char_values[7] = endian_data_copy.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_0_INDEX];
+	ENDIANNESS_CONFIG_DATVALR(8, 0, 0)
+	ENDIANNESS_CONFIG_DATVALR(8, 0, 1)
+	ENDIANNESS_CONFIG_DATVALR(8, 0, 2)
+	ENDIANNESS_CONFIG_DATVALR(8, 0, 3)
+	ENDIANNESS_CONFIG_DATVALR(8, 0, 4)
+	ENDIANNESS_CONFIG_DATVALR(8, 0, 5)
+	ENDIANNESS_CONFIG_DATVALR(8, 0, 6)
+	ENDIANNESS_CONFIG_DATVALR(8, 0, 7)
 
 	return endian_data.integer_value;
 }
 
-uint16_t from_little_endian16(uint16_t value) {
-	union Endian_Data_16 endian_data;
-	union Endian_Data_16 endian_data_copy;
-	endian_data_copy.integer_value = value;
+ENDIANNESS_CONFIG_STATIC uint16_t to_big_endian16(uint16_t value) {
+	ENDIANNESS_CONFIG_VARS(16)
 
-	endian_data.char_values[ENDIANNESS_2_BYTE_TYPE_LSB_PLUS_0_INDEX] = endian_data_copy.char_values[0];
-	endian_data.char_values[ENDIANNESS_2_BYTE_TYPE_LSB_PLUS_1_INDEX] = endian_data_copy.char_values[1];
+	ENDIANNESS_CONFIG_DATVALR(2, 1, 0)
+	ENDIANNESS_CONFIG_DATVALR(2, 1, 1)
 
 	return endian_data.integer_value;
 }
-uint32_t from_little_endian32(uint32_t value) {
-	union Endian_Data_32 endian_data;
-	union Endian_Data_32 endian_data_copy;
-	endian_data_copy.integer_value = value;
+ENDIANNESS_CONFIG_STATIC uint32_t to_big_endian32(uint32_t value) {
+	ENDIANNESS_CONFIG_VARS(32)
 
-	endian_data.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_0_INDEX] = endian_data_copy.char_values[0];
-	endian_data.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_1_INDEX] = endian_data_copy.char_values[1];
-	endian_data.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_2_INDEX] = endian_data_copy.char_values[2];
-	endian_data.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_3_INDEX] = endian_data_copy.char_values[3];
+	ENDIANNESS_CONFIG_DATVALR(4, 1, 0)
+	ENDIANNESS_CONFIG_DATVALR(4, 1, 1)
+	ENDIANNESS_CONFIG_DATVALR(4, 1, 2)
+	ENDIANNESS_CONFIG_DATVALR(4, 1, 3)
 
 	return endian_data.integer_value;
 }
-uint64_t from_little_endian64(uint64_t value) {
-	union Endian_Data_64 endian_data;
-	union Endian_Data_64 endian_data_copy;
-	endian_data_copy.integer_value = value;
+ENDIANNESS_CONFIG_STATIC uint64_t to_big_endian64(uint64_t value) {
+	ENDIANNESS_CONFIG_VARS(64)
 
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_0_INDEX] = endian_data_copy.char_values[0];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_1_INDEX] = endian_data_copy.char_values[1];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_2_INDEX] = endian_data_copy.char_values[2];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_3_INDEX] = endian_data_copy.char_values[3];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_4_INDEX] = endian_data_copy.char_values[4];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_5_INDEX] = endian_data_copy.char_values[5];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_6_INDEX] = endian_data_copy.char_values[6];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_7_INDEX] = endian_data_copy.char_values[7];
+	ENDIANNESS_CONFIG_DATVALR(8, 1, 0)
+	ENDIANNESS_CONFIG_DATVALR(8, 1, 1)
+	ENDIANNESS_CONFIG_DATVALR(8, 1, 2)
+	ENDIANNESS_CONFIG_DATVALR(8, 1, 3)
+	ENDIANNESS_CONFIG_DATVALR(8, 1, 4)
+	ENDIANNESS_CONFIG_DATVALR(8, 1, 5)
+	ENDIANNESS_CONFIG_DATVALR(8, 1, 6)
+	ENDIANNESS_CONFIG_DATVALR(8, 1, 7)
 
 	return endian_data.integer_value;
 }
 
-uint16_t from_big_endian16(uint16_t value) {
-	union Endian_Data_16 endian_data;
-	union Endian_Data_16 endian_data_copy;
-	endian_data_copy.integer_value = value;
+ENDIANNESS_CONFIG_STATIC uint16_t from_little_endian16(uint16_t value) {
+	ENDIANNESS_CONFIG_VARS(16)
 
-	endian_data.char_values[ENDIANNESS_2_BYTE_TYPE_LSB_PLUS_0_INDEX] = endian_data_copy.char_values[1];
-	endian_data.char_values[ENDIANNESS_2_BYTE_TYPE_LSB_PLUS_1_INDEX] = endian_data_copy.char_values[0];
+	ENDIANNESS_CONFIG_DATVALL(2, 0, 0)
+	ENDIANNESS_CONFIG_DATVALL(2, 0, 1)
 
 	return endian_data.integer_value;
 }
-uint32_t from_big_endian32(uint32_t value) {
-	union Endian_Data_32 endian_data;
-	union Endian_Data_32 endian_data_copy;
-	endian_data_copy.integer_value = value;
+ENDIANNESS_CONFIG_STATIC uint32_t from_little_endian32(uint32_t value) {
+	ENDIANNESS_CONFIG_VARS(32)
 
-	endian_data.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_0_INDEX] = endian_data_copy.char_values[3];
-	endian_data.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_1_INDEX] = endian_data_copy.char_values[2];
-	endian_data.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_2_INDEX] = endian_data_copy.char_values[1];
-	endian_data.char_values[ENDIANNESS_4_BYTE_TYPE_LSB_PLUS_3_INDEX] = endian_data_copy.char_values[0];
+	ENDIANNESS_CONFIG_DATVALL(4, 0, 0)
+	ENDIANNESS_CONFIG_DATVALL(4, 0, 1)
+	ENDIANNESS_CONFIG_DATVALL(4, 0, 2)
+	ENDIANNESS_CONFIG_DATVALL(4, 0, 3)
 
 	return endian_data.integer_value;
 }
-uint64_t from_big_endian64(uint64_t value) {
-	union Endian_Data_64 endian_data;
-	union Endian_Data_64 endian_data_copy;
-	endian_data_copy.integer_value = value;
+ENDIANNESS_CONFIG_STATIC uint64_t from_little_endian64(uint64_t value) {
+	ENDIANNESS_CONFIG_VARS(64)
 
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_0_INDEX] = endian_data_copy.char_values[7];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_1_INDEX] = endian_data_copy.char_values[6];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_2_INDEX] = endian_data_copy.char_values[5];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_3_INDEX] = endian_data_copy.char_values[4];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_4_INDEX] = endian_data_copy.char_values[3];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_5_INDEX] = endian_data_copy.char_values[2];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_6_INDEX] = endian_data_copy.char_values[1];
-	endian_data.char_values[ENDIANNESS_8_BYTE_TYPE_LSB_PLUS_7_INDEX] = endian_data_copy.char_values[0];
+	ENDIANNESS_CONFIG_DATVALL(8, 0, 0)
+	ENDIANNESS_CONFIG_DATVALL(8, 0, 1)
+	ENDIANNESS_CONFIG_DATVALL(8, 0, 2)
+	ENDIANNESS_CONFIG_DATVALL(8, 0, 3)
+	ENDIANNESS_CONFIG_DATVALL(8, 0, 4)
+	ENDIANNESS_CONFIG_DATVALL(8, 0, 5)
+	ENDIANNESS_CONFIG_DATVALL(8, 0, 6)
+	ENDIANNESS_CONFIG_DATVALL(8, 0, 7)
 
 	return endian_data.integer_value;
 }
+
+ENDIANNESS_CONFIG_STATIC uint16_t from_big_endian16(uint16_t value) {
+	ENDIANNESS_CONFIG_VARS(16)
+
+	ENDIANNESS_CONFIG_DATVALL(2, 1, 0)
+	ENDIANNESS_CONFIG_DATVALL(2, 1, 1)
+
+	return endian_data.integer_value;
+}
+ENDIANNESS_CONFIG_STATIC uint32_t from_big_endian32(uint32_t value) {
+	ENDIANNESS_CONFIG_VARS(32)
+
+	ENDIANNESS_CONFIG_DATVALL(4, 1, 0)
+	ENDIANNESS_CONFIG_DATVALL(4, 1, 1)
+	ENDIANNESS_CONFIG_DATVALL(4, 1, 2)
+	ENDIANNESS_CONFIG_DATVALL(4, 1, 3)
+
+	return endian_data.integer_value;
+}
+ENDIANNESS_CONFIG_STATIC uint64_t from_big_endian64(uint64_t value) {
+	ENDIANNESS_CONFIG_VARS(64)
+
+	ENDIANNESS_CONFIG_DATVALL(8, 1, 0)
+	ENDIANNESS_CONFIG_DATVALL(8, 1, 1)
+	ENDIANNESS_CONFIG_DATVALL(8, 1, 2)
+	ENDIANNESS_CONFIG_DATVALL(8, 1, 3)
+	ENDIANNESS_CONFIG_DATVALL(8, 1, 4)
+	ENDIANNESS_CONFIG_DATVALL(8, 1, 5)
+	ENDIANNESS_CONFIG_DATVALL(8, 1, 6)
+	ENDIANNESS_CONFIG_DATVALL(8, 1, 7)
+
+	return endian_data.integer_value;
+}
+
+#undef ENDIANNESS_CONFIG_DATVAL2
+#undef ENDIANNESS_CONFIG_DATVALR
+#undef ENDIANNESS_CONFIG_DATVALL
+#undef ENDIANNESS_CONFIG_VARS
+
 #endif /* ENDIANNESS_CONFIG_FORCE_SYSTEM_IMPLEMENTATION */
 
 #endif /* ENDIANNESS_GENERATED_CONFIG_H_ */
