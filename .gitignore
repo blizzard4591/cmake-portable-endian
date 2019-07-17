@@ -1,3 +1,6 @@
+CMakeFiles/
+/build/
+
 # Object files
 *.o
 *.ko

@@ -292,21 +292,26 @@
 
 /*
 	Datatypes for accessing the bytes of uintNN_t
+
+	Endian_Data_##N : N = sizeof(Endian_Data_##N)
  */
 union Endian_Data_16 {
 	uint16_t integer_value;
-	unsigned char char_values[2];
+	uint8_t char_values[2];
 };
- 
+typedef union Endian_Data_16 Endian_Data_2;
+
 union Endian_Data_32 {
 	uint32_t integer_value;
-	unsigned char char_values[4];
+	uint8_t char_values[4];
 };
+typedef union Endian_Data_32 Endian_Data_4;
 
 union Endian_Data_64 {
 	uint64_t integer_value;
-	unsigned char char_values[8];
+	uint8_t char_values[8];
 };
+typedef union Endian_Data_64 Endian_Data_8;
 
 /*
 	Custom, non-system dependent implementations of the endian-switching functions.
@@ -332,12 +337,12 @@ union Endian_Data_64 {
 #define ENDIANNESS_CONFIG_DATVALR(B,R,N) ENDIANNESS_CONFIG_DATVAL2(R ? (B - 1 - N) : N, ENDIANNESS_##B##_BYTE_TYPE_LSB_PLUS_##N##_INDEX)
 #define ENDIANNESS_CONFIG_DATVALL(B,R,N) ENDIANNESS_CONFIG_DATVAL2(ENDIANNESS_##B##_BYTE_TYPE_LSB_PLUS_##N##_INDEX, R ? (B - 1 - N) : N)
 #define ENDIANNESS_CONFIG_VARS(B) \
-  union Endian_Data_##B endian_data; \
-  union Endian_Data_##B endian_data_copy; \
+  Endian_Data_##B endian_data; \
+  Endian_Data_##B endian_data_copy; \
   endian_data_copy.integer_value = value;
 
 ENDIANNESS_CONFIG_STATIC uint16_t to_little_endian16(uint16_t value) {
-	ENDIANNESS_CONFIG_VARS(16)
+	ENDIANNESS_CONFIG_VARS(2)
 
 	ENDIANNESS_CONFIG_DATVALR(2, 0, 0)
 	ENDIANNESS_CONFIG_DATVALR(2, 0, 1)
@@ -345,7 +350,7 @@ ENDIANNESS_CONFIG_STATIC uint16_t to_little_endian16(uint16_t value) {
 	return endian_data.integer_value;
 }
 ENDIANNESS_CONFIG_STATIC uint32_t to_little_endian32(uint32_t value) {
-	ENDIANNESS_CONFIG_VARS(32)
+	ENDIANNESS_CONFIG_VARS(4)
 
 	ENDIANNESS_CONFIG_DATVALR(4, 0, 0)
 	ENDIANNESS_CONFIG_DATVALR(4, 0, 1)
@@ -355,7 +360,7 @@ ENDIANNESS_CONFIG_STATIC uint32_t to_little_endian32(uint32_t value) {
 	return endian_data.integer_value;
 }
 ENDIANNESS_CONFIG_STATIC uint64_t to_little_endian64(uint64_t value) {
-	ENDIANNESS_CONFIG_VARS(64)
+	ENDIANNESS_CONFIG_VARS(8)
 
 	ENDIANNESS_CONFIG_DATVALR(8, 0, 0)
 	ENDIANNESS_CONFIG_DATVALR(8, 0, 1)
@@ -370,7 +375,7 @@ ENDIANNESS_CONFIG_STATIC uint64_t to_little_endian64(uint64_t value) {
 }
 
 ENDIANNESS_CONFIG_STATIC uint16_t to_big_endian16(uint16_t value) {
-	ENDIANNESS_CONFIG_VARS(16)
+	ENDIANNESS_CONFIG_VARS(2)
 
 	ENDIANNESS_CONFIG_DATVALR(2, 1, 0)
 	ENDIANNESS_CONFIG_DATVALR(2, 1, 1)
@@ -378,7 +383,7 @@ ENDIANNESS_CONFIG_STATIC uint16_t to_big_endian16(uint16_t value) {
 	return endian_data.integer_value;
 }
 ENDIANNESS_CONFIG_STATIC uint32_t to_big_endian32(uint32_t value) {
-	ENDIANNESS_CONFIG_VARS(32)
+	ENDIANNESS_CONFIG_VARS(4)
 
 	ENDIANNESS_CONFIG_DATVALR(4, 1, 0)
 	ENDIANNESS_CONFIG_DATVALR(4, 1, 1)
@@ -388,7 +393,7 @@ ENDIANNESS_CONFIG_STATIC uint32_t to_big_endian32(uint32_t value) {
 	return endian_data.integer_value;
 }
 ENDIANNESS_CONFIG_STATIC uint64_t to_big_endian64(uint64_t value) {
-	ENDIANNESS_CONFIG_VARS(64)
+	ENDIANNESS_CONFIG_VARS(8)
 
 	ENDIANNESS_CONFIG_DATVALR(8, 1, 0)
 	ENDIANNESS_CONFIG_DATVALR(8, 1, 1)
@@ -403,7 +408,7 @@ ENDIANNESS_CONFIG_STATIC uint64_t to_big_endian64(uint64_t value) {
 }
 
 ENDIANNESS_CONFIG_STATIC uint16_t from_little_endian16(uint16_t value) {
-	ENDIANNESS_CONFIG_VARS(16)
+	ENDIANNESS_CONFIG_VARS(2)
 
 	ENDIANNESS_CONFIG_DATVALL(2, 0, 0)
 	ENDIANNESS_CONFIG_DATVALL(2, 0, 1)
@@ -411,7 +416,7 @@ ENDIANNESS_CONFIG_STATIC uint16_t from_little_endian16(uint16_t value) {
 	return endian_data.integer_value;
 }
 ENDIANNESS_CONFIG_STATIC uint32_t from_little_endian32(uint32_t value) {
-	ENDIANNESS_CONFIG_VARS(32)
+	ENDIANNESS_CONFIG_VARS(4)
 
 	ENDIANNESS_CONFIG_DATVALL(4, 0, 0)
 	ENDIANNESS_CONFIG_DATVALL(4, 0, 1)
@@ -421,7 +426,7 @@ ENDIANNESS_CONFIG_STATIC uint32_t from_little_endian32(uint32_t value) {
 	return endian_data.integer_value;
 }
 ENDIANNESS_CONFIG_STATIC uint64_t from_little_endian64(uint64_t value) {
-	ENDIANNESS_CONFIG_VARS(64)
+	ENDIANNESS_CONFIG_VARS(8)
 
 	ENDIANNESS_CONFIG_DATVALL(8, 0, 0)
 	ENDIANNESS_CONFIG_DATVALL(8, 0, 1)
@@ -436,7 +441,7 @@ ENDIANNESS_CONFIG_STATIC uint64_t from_little_endian64(uint64_t value) {
 }
 
 ENDIANNESS_CONFIG_STATIC uint16_t from_big_endian16(uint16_t value) {
-	ENDIANNESS_CONFIG_VARS(16)
+	ENDIANNESS_CONFIG_VARS(2)
 
 	ENDIANNESS_CONFIG_DATVALL(2, 1, 0)
 	ENDIANNESS_CONFIG_DATVALL(2, 1, 1)
@@ -444,7 +449,7 @@ ENDIANNESS_CONFIG_STATIC uint16_t from_big_endian16(uint16_t value) {
 	return endian_data.integer_value;
 }
 ENDIANNESS_CONFIG_STATIC uint32_t from_big_endian32(uint32_t value) {
-	ENDIANNESS_CONFIG_VARS(32)
+	ENDIANNESS_CONFIG_VARS(4)
 
 	ENDIANNESS_CONFIG_DATVALL(4, 1, 0)
 	ENDIANNESS_CONFIG_DATVALL(4, 1, 1)
@@ -454,7 +459,7 @@ ENDIANNESS_CONFIG_STATIC uint32_t from_big_endian32(uint32_t value) {
 	return endian_data.integer_value;
 }
 ENDIANNESS_CONFIG_STATIC uint64_t from_big_endian64(uint64_t value) {
-	ENDIANNESS_CONFIG_VARS(64)
+	ENDIANNESS_CONFIG_VARS(8)
 
 	ENDIANNESS_CONFIG_DATVALL(8, 1, 0)
 	ENDIANNESS_CONFIG_DATVALL(8, 1, 1)
