@@ -311,6 +311,22 @@ union Endian_Data_64 {
 /*
 	Custom, non-system dependent implementations of the endian-switching functions.
 	These depend on the correct findings of the CMake endian test.
+
+	The following macros greatly reduce the code duplication in the following
+	endian-switching functions.
+	DATVAL2 : move data from byte R to byte L
+
+	DATVALR and DATVALL do probably the same
+	    B : sizeof(value)
+	    R ? little_endian : big_endian
+	    N : byte index
+
+	    One of these macros is called inside of the endian-switching functions
+	    for each byte to switch it according to the
+	        ENDIANNESS_*_BYTE_TYPE_LSB_PLUS_*_INDEX macros.
+
+	VARS : declare common variables for the functions
+	    B : sizeof(value)
  */
 #define ENDIANNESS_CONFIG_DATVAL2(L,R)   endian_data.char_values[L] = endian_data_copy.char_values[R];
 #define ENDIANNESS_CONFIG_DATVALR(B,R,N) ENDIANNESS_CONFIG_DATVAL2(R ? (B - 1 - N) : N, ENDIANNESS_##B##_BYTE_TYPE_LSB_PLUS_##N##_INDEX)
